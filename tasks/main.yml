@@ -1,0 +1,70 @@
+---
+- name: Ensure '{{ deployment_workdir }}' exists
+  ansible.builtin.file:
+    path: "{{ deployment_workdir }}"
+    state: directory
+    mode: 0755
+
+- name: Install and upgrade pip
+  pip:
+    name: pip
+    extra_args: --upgrade
+    executable: pip3
+  notify: restart_app
+
+- name: install pip3
+  apt: name=python3-pip state=present 
+  notify: restart_app
+
+- name: show ansible_python
+  ansible.builtin.debug:
+    msg: "{{ ansible_python }}"
+  notify: restart_app
+
+- name: Transfer an Python artifact to the remote server
+  ansible.builtin.copy:
+    src: "{{ deployment_artifact_py }}"
+    dest: "{{ deployment_workdir }}/{{ deployment_app_name }}"
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_group }}"
+    mode: 0755
+  notify: restart_app
+
+- name: Transfer an Requirements artifact to the remote server
+  ansible.builtin.copy:
+    src: "{{ deployment_artifact_req }}"
+    dest: "{{ deployment_workdir }}/{{ deployment_req_name }}"
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_group }}"
+    mode: 0755
+  notify: restart_app
+
+- name: Install specified python requirements
+  ansible.builtin.pip:
+    requirements: "{{ deployment_workdir }}/{{ deployment_req_name }}"
+  notify: restart_app
+
+- name: Setup environment variables
+  ansible.builtin.template:
+    src: config.ini.j2
+    dest: "{{ deployment_workdir }}/config.ini"
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_group }}"
+    mode: 0640
+  notify: restart_app
+
+- name: Create systemd service
+  ansible.builtin.template:
+    src: systemd.service.j2
+    dest: "/etc/systemd/system/{{ deployment_service }}.service"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart_app
+
+- name: Ensure systemd service is started and enabled
+  ansible.builtin.systemd:
+    name: "{{ deployment_service }}"
+    state: started
+    enabled: true
+    daemon_reload: true

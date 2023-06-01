@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: staketab
+  role_name: strapi-deployment
+  description: Deploy a strapi application
+  company: Staketab
+  license: MIT
+  min_ansible_version: 2.10
+  platforms:
+  - name: Debian
+    versions:
+    - bullseye
+  galaxy_tags:
+  - strapi
+  - backend
+  - deployment
+
+dependencies: []
