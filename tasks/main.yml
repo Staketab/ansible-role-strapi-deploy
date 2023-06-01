@@ -21,6 +21,9 @@
     msg: "{{ ansible_python }}"
   notify: restart_app
 
+- name: install flask with pip
+  pip: name=flask
+  
 - name: Transfer an Python artifact to the remote server
   ansible.builtin.copy:
     src: "{{ deployment_artifact_py }}"
