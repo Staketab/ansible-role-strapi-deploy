@@ -23,7 +23,7 @@
 
 - name: install flask with pip
   pip: name=flask
-  
+
 - name: Transfer an Python artifact to the remote server
   ansible.builtin.copy:
     src: "{{ deployment_artifact_py }}"
@@ -42,10 +42,10 @@
     mode: 0755
   notify: restart_app
 
-- name: Install specified python requirements
-  ansible.builtin.pip:
-    requirements: "{{ deployment_workdir }}/{{ deployment_req_name }}"
-  notify: restart_app
+# - name: Install specified python requirements
+#   ansible.builtin.pip:
+#     requirements: "{{ deployment_workdir }}/{{ deployment_req_name }}"
+#   notify: restart_app
 
 - name: Setup environment variables
   ansible.builtin.template:
